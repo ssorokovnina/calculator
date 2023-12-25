@@ -1,5 +1,3 @@
-import { factorial } from './utils.js';
-
 const btnsArr = [
     {
         'name': 'x!',

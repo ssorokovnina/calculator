@@ -1,5 +1,7 @@
 export function factorial(x) {
-    if (!x || x === 1) return 1;
+    if (x > 170) return alert('Number is too big');
+
+    if (!x || (x === 1)) return 1;
 
     if (x < 0) {
         return -(factorial(-x));
@@ -13,5 +15,7 @@ function pow(x, y) {
 }
 
 function sqrt(x) {
-    return Math.sqrt(x);
+    if (x >= 0) return Math.sqrt(x);
+
+    alert('Invalid format used');
 }
