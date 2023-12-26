@@ -8,7 +8,7 @@ const functions = document.querySelectorAll('.function');
 const dot = document.querySelector('.dot');
 const calculationsDiv = document.querySelector('.calculations');
 let memoryArr = [];
-let tmp = 0;
+let isEquals = false;
 
 numbers.forEach( (number) => {
     number.addEventListener('click', (evt) => {
@@ -22,16 +22,20 @@ numbers.forEach( (number) => {
 
             memoryArr[memoryArr.length - 1] = +(memoryArr[memoryArr.length - 1] + evt.target.dataset.value);
 
-        } else if (!isInt(memoryArr[memoryArr.length - 1]) && tmp === 0) {
-            memoryArr[memoryArr.length - 1] += evt.target.dataset.value;
+        } else if (!isInt(memoryArr[memoryArr.length - 1])) {
+            if (isEquals) {
+                memoryArr = [+evt.target.dataset.value];
+                isEquals = false;
+            } else {
+                memoryArr[memoryArr.length - 1] += evt.target.dataset.value;
+            }
         } else {
-
             if (memoryArr[0] === '-') {
                 memoryArr[0] = -evt.target.dataset.value;
             } else {
                 memoryArr = [+evt.target.dataset.value];
+                isEquals = false;
             }
-            tmp = 0;
         }
         calculationsDiv.innerHTML = memoryArr.join(' ');
     })
@@ -43,6 +47,7 @@ function isOperator(op) {
 
 operators.forEach( (op) => {
     op.addEventListener('click', (evt) => {
+        isEquals = false;
 
         if (!memoryArr.length) {
 
@@ -56,7 +61,7 @@ operators.forEach( (op) => {
 
             if (getResult()) {
                 memoryArr[0] = +memoryArr[0];
-                memoryArr.push(evt.target.dataset.value)
+                memoryArr.push(evt.target.dataset.value);
             }
 
         } else if (!isOperator(memoryArr[memoryArr.length - 1])) {
@@ -73,25 +78,25 @@ operators.forEach( (op) => {
 })
 
 clearing.addEventListener('click', (evt) => {
+    isEquals = false;
     calculationsDiv.innerHTML = '';
     memoryArr = [];
 })
 
-function getResult() {
+function getResult(isEqual = false) {
     const result = showResult(memoryArr);
 
     if (result !== undefined) {
         memoryArr = [result.toString()];
-
-        if (!isInt(result)) tmp = 1;
-        
-        console.log(memoryArr);
+        isEquals = isEqual;
         calculationsDiv.innerHTML = result;
         return 1;
     }
 }
 
-equals.addEventListener('click', getResult);
+equals.addEventListener('click', () => {
+    getResult(true);
+});
 
 
 function showResult(arr) {
@@ -117,7 +122,7 @@ functions.forEach( (func) => {
 
         if (evt.target.dataset.value === 'factorial') {
 
-            if (!memoryArr.length || !isInt(memoryArr[memoryArr.length - 1]) && memoryArr[memoryArr.length - 1] !== '0.') {
+            if (!memoryArr.length || !isInt(memoryArr[memoryArr.length - 1]) && memoryArr[memoryArr.length - 1].at(-1) !== '.') {
                 alert('Invalid format used');
             } else {
                 const res = factorial(+memoryArr[memoryArr.length - 1]);
@@ -144,8 +149,11 @@ dot.addEventListener('click', (evt) => {
 
     if (!memoryArr.length || memoryArr.length === 2) {
         memoryArr.push('0.');
-    } else if (!isOperator(memoryArr[memoryArr.length - 1]) && isInt(memoryArr[memoryArr.length - 1])) {
+    } else if (!isOperator(memoryArr[memoryArr.length - 1]) && isInt(memoryArr[memoryArr.length - 1]) && !isEquals) {
         memoryArr[memoryArr.length - 1] += evt.target.dataset.value;
+    } else if (isEquals) {
+        isEquals = false;
+        memoryArr = ['0.'];
     }
     calculationsDiv.innerHTML = memoryArr.join(' ');
 })
