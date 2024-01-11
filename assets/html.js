@@ -29,5 +29,3 @@ function createHTML() {
 }
 
 createHTML();
-
-// export default createHTML;

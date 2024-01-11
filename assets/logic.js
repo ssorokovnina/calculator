@@ -1,4 +1,5 @@
 import { factorial } from './utils.js';
+import { sqrt } from './utils.js';
 
 const numbers = document.querySelectorAll('.number');
 const operators = document.querySelectorAll('.operator');
@@ -9,6 +10,7 @@ const dot = document.querySelector('.dot');
 const calculationsDiv = document.querySelector('.calculations');
 let memoryArr = [];
 let isEquals = false;
+let isSqrt = false;
 
 numbers.forEach( (number) => {
     number.addEventListener('click', (evt) => {
@@ -37,7 +39,17 @@ numbers.forEach( (number) => {
                 isEquals = false;
             }
         }
-        calculationsDiv.innerHTML = memoryArr.join(' ');
+        if (isSqrt && memoryArr.length === 1) {
+            if (memoryArr[0] < 0) {
+                calculationsDiv.innerHTML = '-√' + -memoryArr.join(' ');
+            } else {
+                calculationsDiv.innerHTML = '√' + memoryArr.join(' ');
+            } 
+        } else if (isSqrt && memoryArr.length === 3) {
+            calculationsDiv.innerHTML = memoryArr.slice(0, 2).join(' ') + '√' + memoryArr.at(-1);
+        } else {
+            calculationsDiv.innerHTML = memoryArr.join(' ');
+        } 
     })
 })
 
@@ -51,13 +63,23 @@ operators.forEach( (op) => {
 
         if (!memoryArr.length) {
 
-            if (evt.target.dataset.value === '-') {
-                memoryArr.push('-');
+            if (!isSqrt) {
+                if (evt.target.dataset.value === '-') {
+                    memoryArr.push('-');
+                } else {
+                    alert('Invalid format used');
+                }
             } else {
+                isSqrt = false;
                 alert('Invalid format used');
             }
-
+            
         } else if (memoryArr.length === 3) {
+
+            if (isSqrt) {
+                isSqrt = false;
+                memoryArr[memoryArr.length - 1] = sqrt(memoryArr[memoryArr.length - 1]);
+            }
 
             if (getResult()) {
                 memoryArr[0] = +memoryArr[0];
@@ -73,12 +95,23 @@ operators.forEach( (op) => {
             memoryArr[memoryArr.length - 1] = evt.target.dataset.value;
 
         }
+        if (memoryArr.length && isSqrt) {
+            if (memoryArr[0] < 0) {
+                memoryArr[0] = -sqrt(-memoryArr[0]);
+            } else {
+                memoryArr[0] = sqrt(+memoryArr[0]);
+            }
+            isSqrt = false;
+        }
+        
         calculationsDiv.innerHTML = memoryArr.join(' ');
+
     })
 })
 
 clearing.addEventListener('click', (evt) => {
     isEquals = false;
+    isSqrt = false;
     calculationsDiv.innerHTML = '';
     memoryArr = [];
 })
@@ -100,7 +133,17 @@ equals.addEventListener('click', () => {
 
 
 function showResult(arr) {
+    if (isSqrt && arr.length === 1) {
+        isSqrt = false;
+        return sqrt(arr[0]);
+    }
+
     if (arr.length === 1 || arr.length === 2) return arr[0];
+
+    if (isSqrt) {
+        arr[2] = sqrt(arr[2]);
+        isSqrt = false;
+    } 
 
     if (arr[1] == '+') return (arr[0] + +arr[2]);
     if (arr[1] == '-') return (arr[0] - arr[2]);
@@ -133,9 +176,19 @@ functions.forEach( (func) => {
             }
 
         }
-        // if (evt.target.dataset.value === 'sqrt') {
-
-        // }
+        if (evt.target.dataset.value === 'sqrt') {
+            isSqrt = true;
+            if (!memoryArr.length) {
+                calculationsDiv.innerHTML = evt.target.innerHTML;
+            } else if (memoryArr.length === 2) {
+                calculationsDiv.innerHTML = memoryArr.join(' ') + evt.target.innerHTML;
+            } else if (memoryArr[memoryArr.length - 1] === '-') {
+                calculationsDiv.innerHTML = memoryArr[memoryArr.length - 1] + evt.target.innerHTML;
+            } else if (isEquals) {
+                isEquals = false;
+                calculationsDiv.innerHTML = evt.target.innerHTML;
+            }
+        }
     })
 })
 

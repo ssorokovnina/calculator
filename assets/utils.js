@@ -14,7 +14,7 @@ function pow(x, y) {
     return Math.pow(x, y);
 }
 
-function sqrt(x) {
+export function sqrt(x) {
     if (x >= 0) return Math.sqrt(x);
 
     alert('Invalid format used');
