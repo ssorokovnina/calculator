@@ -91,11 +91,13 @@ operators.forEach( (op) => {
             memoryArr.push(evt.target.dataset.value);
 
         } else {
-
-            memoryArr[memoryArr.length - 1] = evt.target.dataset.value;
-
+            if (memoryArr[0] !== '-') {
+                memoryArr[memoryArr.length - 1] = evt.target.dataset.value;
+            } else {
+                return alert('Invalid format used');
+            }
         }
-        if (memoryArr.length && isSqrt) {
+        if (memoryArr.length && memoryArr[0] !== '-' && isSqrt) {
             if (memoryArr[0] < 0) {
                 memoryArr[0] = -sqrt(-memoryArr[0]);
             } else {
@@ -133,8 +135,14 @@ equals.addEventListener('click', () => {
 
 
 function showResult(arr) {
+    if (isSqrt && !arr.length) {
+        return alert('Invalid format used');
+    }
     if (isSqrt && arr.length === 1) {
+        if (arr[0] === '-') return alert('Invalid format used');
+
         isSqrt = false;
+        if (arr[0] < 0) return -sqrt(-arr[0]);
         return sqrt(arr[0]);
     }
 
